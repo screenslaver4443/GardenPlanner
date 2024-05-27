@@ -13,7 +13,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.4.21"
+    "konva": "^9.3.11",
+    "vue": "^3.4.21",
+    "vue-konva": "^3.0.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
