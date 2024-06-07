@@ -4,19 +4,30 @@
   <input id="width" v-on:input="setWidth" type="number" :value="canvasWidth" />
   <label for="height">Height: </label>
   <input id="height" v-on:input="setHeight" type="number" :value="canvasHeight" />
-  <div style="border: 1px solid black; width: fit-content">
+  <div style="border: 1px solid black; width: fit-content;">
     <v-stage :config="configKonva">
       <v-layer>
         <v-rect :config="background"> </v-rect>
       </v-layer>
       <v-layer>
-        <!-- <v-rect :config="toolbar"></v-rect> -->
-        <v-circle v-bind:key="plant" v-for="plant of plants.length" :config="plants[plant - 1]"></v-circle>
+        <v-group v-bind:key="plant" v-for="plant of plantsGroup.length" :config="{
+          draggable: true,
+          x: plant.x,
+          y: plant.y,
+        }">
+          <v-circle :config="plantsShape[plant - 1]"></v-circle>
+          <v-image :config="{
+            x: -plantsShape[plant - 1].radius,
+            y: -plantsShape[plant - 1].radius,
+            image: image,
+            width: plantsShape[plant - 1].radius * 2,
+            height: plantsShape[plant - 1].radius * 2,
+          }"></v-image>
+        </v-group>
       </v-layer>
     </v-stage>
   </div>
   <div>
-    <h2>Plants</h2>
     <ul>
       <button v-for="plant in plantName" v-bind:key="plant" @click="addPlant(plant)">
         Add {{ plant }}
@@ -34,34 +45,22 @@ export default {
       plantJson: jsonData,
       plantArea: [],
       plantName: [],
-      plants: [],
+      plantsGroup: [],
+      plantsShape: [],
+      plantsImage: [],
       configKonva: {
         width: canvasWidth,
         height: canvasHeight,
         border: '1px solid black'
-      },
-      rectExample: {
-        x: 0,
-        y: 0,
-        width: 50,
-        height: 50,
-        fill: 'red',
-        draggable: true
       },
       background: {
         x: 0,
         y: 0,
         width: canvasWidth,
         height: canvasHeight,
-        fill: 'green'
+        fill: '#3F9B0B'
       },
-      toolbar: {
-        width: 75,
-        height: canvasHeight,
-        fill: 'white',
-        stroke: 'black',
-        draggable: false
-      }
+      image: null,
     }
   },
   methods: {
@@ -80,16 +79,24 @@ export default {
     addPlant(plant) {
       const plantRad = this.plantArea[this.plantName.indexOf(plant)]
       const plantCol = this.plantJson[this.plantName.indexOf(plant)].colour
-      console.log(this.plants)
-      this.plants.push({
-        x: 40,
-        y: 40,
+      this.plantsGroup.push({
+        x: canvasWidth / 2,
+        y: canvasHeight / 2,
+      })
+      this.plantsShape.push({
+        x: 0,
+        y: 0,
         radius: plantRad,
         fill: plantCol,
-        stroke: "black",
-        draggable: true
+        stroke: 'black'
       })
-      console.log(this.plants)
+      this.plantsImage.push({
+        x: 0,
+        y: 0,
+        image: this.plantJson[this.plantName.indexOf(plant)].image,
+        width: plantRad,
+        height: plantRad,
+      })
     },
     setToolbar() {
       this.plants.splice(0, this.plantJson.length)
@@ -110,8 +117,15 @@ export default {
       this.plantArea.push(this.plantJson[i].minArea)
       this.plantName.push(this.plantJson[i].plant)
     }
-    // this.setToolbar()
-  }
+  },
+  mounted() {
+    // Load image (replace with your image URL)
+    const img = document.createElement("img");
+    img.src = this.plantJson[0].image;
+    img.onload = () => {
+      this.image = img;
+    }
+  },
 }
 </script>
 
