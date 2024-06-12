@@ -72,9 +72,7 @@ export default {
     setHeight() {
       canvasHeight = document.getElementById('height').value
       this.configKonva.height = canvasHeight
-      this.toolbar.height = canvasHeight
       this.background.height = canvasHeight
-      this.setToolbar()
     },
     addPlant(plant) {
       const plantRad = this.plantArea[this.plantName.indexOf(plant)]
