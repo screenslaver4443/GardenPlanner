@@ -12,14 +12,14 @@
       <v-layer>
         <v-group v-bind:key="plant" v-for="plant of plantsGroup.length" :config="{
           draggable: true,
-          x: plant.x,
-          y: plant.y,
+          x: plantsGroup[plant - 1].x,
+          y: plantsGroup[plant - 1].y,
         }">
           <v-circle :config="plantsShape[plant - 1]"></v-circle>
           <v-image :config="{
             x: -plantsShape[plant - 1].radius,
             y: -plantsShape[plant - 1].radius,
-            image: image,
+            image: plantsImage[plant - 1].image,
             width: plantsShape[plant - 1].radius * 2,
             height: plantsShape[plant - 1].radius * 2,
           }"></v-image>
@@ -45,6 +45,7 @@ export default {
       plantJson: jsonData,
       plantArea: [],
       plantName: [],
+      plantImages: [],
       plantsGroup: [],
       plantsShape: [],
       plantsImage: [],
@@ -60,7 +61,6 @@ export default {
         height: canvasHeight,
         fill: '#3F9B0B'
       },
-      image: null,
     }
   },
   methods: {
@@ -93,23 +93,23 @@ export default {
       this.plantsImage.push({
         x: 0,
         y: 0,
-        image: this.plantJson[this.plantName.indexOf(plant)].image,
+        image: this.plantImages[this.plantName.indexOf(plant)],
         width: plantRad,
         height: plantRad,
       })
     },
-    setToolbar() {
-      this.plants.splice(0, this.plantJson.length)
-      for (var j = 0; j < this.plantJson.length; j++) {
-        this.plants.push({
-          x: 40,
-          y: Math.round((this.configKonva.height / this.plantArea.length) * j),
-          radius: Math.round(this.plantArea[j]),
-          fill: this.plantJson[j].colour,
-          draggable: true
-        })
-      }
-    }
+    // setToolbar() {
+    //   this.plants.splice(0, this.plantJson.length)
+    //   for (var j = 0; j < this.plantJson.length; j++) {
+    //     this.plants.push({
+    //       x: 40,
+    //       y: Math.round((this.configKonva.height / this.plantArea.length) * j),
+    //       radius: Math.round(this.plantArea[j]),
+    //       fill: this.plantJson[j].colour,
+    //       draggable: true
+    //     })
+    //   }
+    // }
   },
   props: {},
   created() {
@@ -119,11 +119,12 @@ export default {
     }
   },
   mounted() {
-    // Load image (replace with your image URL)
-    const img = document.createElement("img");
-    img.src = this.plantJson[0].image;
-    img.onload = () => {
-      this.image = img;
+    for (var i = 0; i < this.plantJson.length; i++) {
+      const img = new Image();
+      img.src = this.plantJson[i].image;
+      img.onload = ((index) => {
+        this.plantImages[index] = img;
+      })(i);
     }
   },
 }
