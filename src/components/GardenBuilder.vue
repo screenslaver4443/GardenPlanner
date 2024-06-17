@@ -4,6 +4,7 @@
   <input id="width" v-on:input="setWidth" type="number" :value="canvasWidth" />
   <label for="height">Height: </label>
   <input id="height" v-on:input="setHeight" type="number" :value="canvasHeight" />
+  <button class="full-button" @click="clear">Clear</button>
   <div style="border: 1px solid black; width: fit-content">
     <v-stage :config="configKonva" ref="stage">
       <v-layer>
@@ -79,6 +80,7 @@ export default {
       this.plantsGroup.splice(plant - 1, 1)
       this.plantsShape.splice(plant - 1, 1)
       this.plantsImage.splice(plant - 1, 1)
+      this.save()
     },
     addPlant(plant) {
       const plantRad = this.plantArea[this.plantName.indexOf(plant)]
@@ -101,13 +103,52 @@ export default {
         width: plantRad,
         height: plantRad
       })
-
+      this.save()
+    },
+    clear() {
+      this.plantsGroup = []
+      this.plantsImage = []
+      this.plantsShape = []
+      this.save()
+      location.reload()
     },
     updatePlantPosition(index, event) {
-      const newX = event.target.x();
-      const newY = event.target.y();
-      this.plantsGroup[index - 1].x = newX;
-      this.plantsGroup[index - 1].y = newY;
+      const newX = event.target.x()
+      const newY = event.target.y()
+      this.plantsGroup[index - 1].x = newX
+      this.plantsGroup[index - 1].y = newY
+      this.save()
+    },
+    save() {
+      // const imageSrcs = this.plantsImage.map(img => img.src);
+      var imageSrcs = []
+      for (var i in this.plantsImage) {
+        imageSrcs.push(this.plantsImage[i].image.src)
+      }
+      localStorage.setItem('group', JSON.stringify(this.plantsGroup))
+      localStorage.setItem('shape', JSON.stringify(this.plantsShape))
+      localStorage.setItem('imagesrc', JSON.stringify(imageSrcs))
+      localStorage.setItem('image', JSON.stringify(this.plantsImage))
+    },
+    load() {
+      const data1 = localStorage.getItem('group')
+      if (data1) this.plantsGroup = JSON.parse(data1)
+      const data2 = localStorage.getItem('shape')
+      if (data2) this.plantsShape = JSON.parse(data2)
+      const data3 = localStorage.getItem('image')
+      if (data3) this.plantsImage = JSON.parse(data3)
+      const data4 = localStorage.getItem('imagesrc')
+      if (data4) {
+        const imageSrcs = JSON.parse(data4);
+        // Recreate Image objects from src strings
+        for (var i = 0; i < imageSrcs.length; i++) {
+          const img = new Image()
+          img.src = imageSrcs[i]
+          img.onload = ((index) => {
+            this.plantsImage[index].image = img
+          })(i)
+        }
+      }
     },
   },
   props: {},
@@ -125,6 +166,7 @@ export default {
         this.plantImages[index] = img
       })(i)
     }
+    this.load()
   }
 }
 </script>
